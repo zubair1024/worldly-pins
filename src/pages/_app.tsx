@@ -11,15 +11,17 @@ interface IAppProps extends AppProps {
 export default function App({ Component, pageProps }: IAppProps) {
   return (
     <>
-      <SessionProvider session={pageProps.session}>
-        {Component.auth ? (
-          <Auth>
+      <div data-theme="dracula">
+        <SessionProvider session={pageProps.session}>
+          {Component.auth ? (
+            <Auth>
+              <Component {...pageProps} />
+            </Auth>
+          ) : (
             <Component {...pageProps} />
-          </Auth>
-        ) : (
-          <Component {...pageProps} />
-        )}
-      </SessionProvider>
+          )}
+        </SessionProvider>
+      </div>
     </>
   );
 }
