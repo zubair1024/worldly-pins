@@ -70,7 +70,8 @@ const SignInScreen = () => {
             <input
               className="w-full btn btn-secondary"
               type="submit"
-              value="Login"
+              value={loading ? 'Loading' : 'Login'}
+              disabled={loading}
             />
           </div>
           <div>

@@ -1,7 +1,6 @@
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
-import DashboardScreen from './dashboard';
 
 const Home = () => {
   const { status } = useSession();
@@ -11,10 +10,10 @@ const Home = () => {
   }, [router, status]);
 
   if (status === 'authenticated') {
-    return <DashboardScreen />;
+    router.push('/dashboard');
   }
 
-  return <h1>loading</h1>;
+  return <h1>Loading</h1>;
 };
 
 export default Home;
