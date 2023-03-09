@@ -5,6 +5,7 @@ import { useRouter } from 'next/router';
 import { NextComponentType, NextPageContext } from 'next/types';
 
 interface IAppProps extends AppProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   Component: NextComponentType<NextPageContext, any, any> & { auth: boolean };
 }
 

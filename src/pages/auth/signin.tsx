@@ -20,14 +20,20 @@ const SignInScreen = () => {
       password: '',
     },
     onSubmit: async (values, formikHelpers) => {
-      console.log(values);
-      await handleSignInSubmit(values.email, values.password);
-      formikHelpers.resetForm();
+      try {
+        await handleSignInSubmit(values.email, values.password);
+        formikHelpers.resetForm();
+      } catch (err) {
+        alert(`Something went wrong`);
+      }
     },
     validationSchema: toFormikValidationSchema(Schema),
   });
 
   useEffect(() => {
+    if (response?.status === 401) {
+      alert(`Invalid Credentials`);
+    }
     if (response?.status === 200) {
       router.push('/dashboard');
     }
