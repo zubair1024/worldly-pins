@@ -90,7 +90,7 @@ export async function isCountryValid(str: string) {
 export async function findCountries(str: string, limit = 10) {
   prisma.$connect();
   const countries = await prisma.countryGEOJSON.findMany({
-    where: { name: { contains: str } },
+    where: { name: { contains: str, mode: 'insensitive' } },
     select: { name: true, id: true, iso_a3: true },
     take: limit,
     orderBy: [{ name: 'asc' }],
