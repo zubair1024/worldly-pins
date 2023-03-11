@@ -15,10 +15,10 @@ export default async function handler(
   res: NextApiResponse<IFindResponse>,
 ) {
   const session = await getSession({ req });
-  // if (!session)
-  //   return res
-  //     .status(401)
-  //     .json({ errMessage: 'Unauthorized', error: true, success: false });
+  if (!session)
+    return res
+      .status(401)
+      .json({ errMessage: 'Unauthorized', error: true, success: false });
 
   if (req.method === 'GET') {
     const { q, type } = req.query;

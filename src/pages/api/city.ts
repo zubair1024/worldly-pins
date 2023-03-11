@@ -8,7 +8,7 @@ import {
   getCitiesForUser,
   isCityValid,
 } from '@/services/city';
-import { City, CityMaster, User } from '@prisma/client';
+import { City, CityMaster } from '@prisma/client';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getSession } from 'next-auth/react';
 import z from 'zod';
@@ -26,15 +26,15 @@ export default async function handler(
   res: NextApiResponse<IUserApiResponse>,
 ) {
   const session = await getSession({ req });
-  // if (!session)
-  //   return res
-  //     .status(401)
-  //     .json({ errMessage: 'Unauthorized', error: true, success: false });
+  if (!session)
+    return res
+      .status(401)
+      .json({ errMessage: 'Unauthorized', error: true, success: false });
 
-  // const userData = session.user;
+  const userData = session.user;
 
   //TODO remove this
-  const userData = { id: 1 } as User;
+  // const userData = { id: 1 } as User;
 
   try {
     if (req.method == 'GET') {
