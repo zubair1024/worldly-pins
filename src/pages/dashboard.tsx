@@ -1,37 +1,21 @@
 import Layout from '@/components/Layout';
 import Loading from '@/components/Loading';
 import ModalControl from '@/components/ModalControl';
-import { Country, CountryGEOJSON } from '@prisma/client';
-import axios from 'axios';
-import { GeoJsonObject } from 'geojson';
+import useGlobalStore from '@/lib/store';
 import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
 
 const DashboardScreen = (props: { mapApiKey: string }) => {
+  const { fetchUserCountries, userCountries, userCities } = useGlobalStore();
   const [isLoading, setIsLoading] = useState(false);
 
-  const [countriesGeoJSON, setCountriesGeoJSON] = useState<
-    GeoJsonObject[] | undefined
-  >(undefined);
-
   useEffect(() => {
-    setIsLoading(true);
-    axios
-      .get('/api/geojson/country')
-      .then((res) => {
-        console.log(res.data);
-        const responseData: (Country & {
-          countryGEOJSON: CountryGEOJSON;
-        })[] = res.data?.data;
-        if (responseData.length) {
-          setCountriesGeoJSON(
-            responseData.map(
-              (i) => i.countryGEOJSON.geoJson as unknown as GeoJsonObject,
-            ),
-          );
-        }
-      })
-      .finally(() => setIsLoading(false));
+    const fetchData = async () => {
+      setIsLoading(true);
+      await fetchUserCountries();
+      setIsLoading(false);
+    };
+    fetchData();
   }, []);
 
   const DynamicMap = dynamic(
@@ -51,7 +35,8 @@ const DashboardScreen = (props: { mapApiKey: string }) => {
             </div>
             <DynamicMap
               apiKey={props.mapApiKey}
-              countriesGeoJSON={countriesGeoJSON}
+              countries={userCountries}
+              cities={userCities}
             ></DynamicMap>
           </div>
         )}

@@ -1,92 +1,99 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
-import { IResponse, IUser } from '@/lib/types';
+import { IResponse } from '@/lib/types';
 import { handleError } from '@/lib/utils';
-import { PrismaClient } from '@prisma/client';
+import {
+  addCityForUser,
+  checkIfCityExistsForUser,
+  deleteCityForUser,
+  getCitiesForUser,
+  isCityValid,
+} from '@/services/city';
+import { City, CityMaster, User } from '@prisma/client';
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { getSession } from 'next-auth/react';
 import z from 'zod';
 
 interface IUserApiResponse extends IResponse {
-  data?: IUser;
+  data?: City[];
 }
-
-const userSearchSchema = z.object({
-  email: z.string().min(3),
+const countryCreationSchema = z.object({
+  id: z.number(),
+  name: z.string().min(3),
 });
-
-const userCreationSchema = userSearchSchema.extend({
-  firstName: z.string().min(3),
-  lastName: z.string().min(3),
-  password: z.string().min(3),
-});
-
-async function createUser(userData: Required<IUser>) {
-  const prisma = new PrismaClient();
-  await prisma.$connect();
-  const data = (await prisma.user.create({
-    data: userData,
-  })) as IUser;
-  await prisma.$disconnect();
-  delete data.password;
-  return data;
-}
-
-async function updateUser(userData: IUser) {
-  const prisma = new PrismaClient();
-  await prisma.$connect();
-  const data = (await prisma.user.update({
-    where: {
-      email: userData.email,
-    },
-    data: userData,
-  })) as IUser;
-  await prisma.$disconnect();
-  delete data.password;
-  return data;
-}
-
-async function deleteUser(userData: IUser) {
-  const prisma = new PrismaClient();
-  await prisma.$connect();
-  const data = (await prisma.user.delete({
-    where: {
-      email: userData.email,
-    },
-  })) as IUser;
-  await prisma.$disconnect();
-  delete data.password;
-  return data;
-}
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<IUserApiResponse>,
 ) {
+  const session = await getSession({ req });
+  // if (!session)
+  //   return res
+  //     .status(401)
+  //     .json({ errMessage: 'Unauthorized', error: true, success: false });
+
+  // const userData = session.user;
+
+  //TODO remove this
+  const userData = { id: 1 } as User;
+
   try {
-    if (req.method == 'POST') {
-      userCreationSchema.parse(req.body);
-      const data = await createUser(req.body as Required<IUser>);
+    if (req.method == 'GET') {
+      const data = await getCitiesForUser(userData, { cityMaster: true });
       return res.status(200).json({
         success: true,
-        message: 'User was created successfully',
+        message: 'Country was created successfully',
         data,
       });
     }
-    if (req.method === 'PUT') {
-      userCreationSchema.parse(req.body);
-      const data = await updateUser(req.body as Required<IUser>);
+    if (req.method == 'POST') {
+      countryCreationSchema.parse(req.body);
+
+      if (!isCityValid(req.body.name as string))
+        return res.status(404).json({
+          success: false,
+          error: true,
+          errMessage: 'Country not found',
+        });
+
+      const exists = await checkIfCityExistsForUser(
+        req.body as Pick<CityMaster, 'name' | 'id'>,
+        userData,
+      );
+      if (exists)
+        return res.status(200).json({
+          error: true,
+          errMessage: 'City already exists',
+          success: false,
+        });
+
+      const data = await addCityForUser(
+        req.body as Pick<CityMaster, 'name' | 'id'>,
+        userData,
+      );
       return res.status(200).json({
         success: true,
-        message: 'User was created updated',
-        data,
+        message: 'City was created successfully',
+        data: [data],
       });
     }
     if (req.method === `DELETE`) {
-      userSearchSchema.parse(req.body);
-      const data = await deleteUser(req.body as Required<IUser>);
+      countryCreationSchema.parse(req.body);
+
+      if (!isCityValid(req.body.name as string))
+        return res.status(404).json({
+          success: false,
+          error: true,
+          errMessage: 'City not found',
+        });
+
+      const data = await deleteCityForUser(
+        req.body as Pick<City, 'name' | 'id'>,
+        userData,
+      );
       return res.status(200).json({
         success: true,
-        message: 'User was deleted',
-        data,
+        message: 'City was deleted',
+        data: [data],
       });
     }
     return res

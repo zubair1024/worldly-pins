@@ -1,19 +1,19 @@
-import { Country, CountryGEOJSON, PrismaClient, User } from '@prisma/client';
+import { CityMaster, PrismaClient, User } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export async function getCountriesForUser(
+export async function getCitiesForUser(
   user: User,
-  { geojson }: { geojson: boolean },
+  { cityMaster }: { cityMaster: boolean },
 ) {
   await prisma.$connect();
 
-  const data = await prisma.country.findMany({
+  const data = await prisma.city.findMany({
     where: {
       userId: user.id,
     },
     include: {
-      countryGEOJSON: geojson,
+      cityMaster,
     },
     orderBy: [{ name: 'asc' }],
   });
@@ -21,22 +21,21 @@ export async function getCountriesForUser(
   return data;
 }
 
-export async function addCountryForUser(
-  country: Pick<CountryGEOJSON, 'name' | 'id' | 'iso_a3'>,
+export async function addCityForUser(
+  city: Pick<CityMaster, 'name' | 'id'>,
   user: User,
 ) {
   const prisma = new PrismaClient();
   await prisma.$connect();
-  const data = await prisma.country.create({
+  const data = await prisma.city.create({
     data: {
-      name: country.name,
+      name: city.name,
       pStateId: 1,
       userId: user.id,
-      countryGEOJSONId: country.id,
-      iso_a3: country.iso_a3,
+      cityMasterId: city.id,
     },
     include: {
-      countryGEOJSON: true,
+      cityMaster: true,
     },
   });
 
@@ -44,34 +43,34 @@ export async function addCountryForUser(
   return data;
 }
 
-export async function checkIfCountryExistsForUser(
-  country: Pick<CountryGEOJSON, 'name' | 'id' | 'iso_a3'>,
+export async function checkIfCityExistsForUser(
+  city: Pick<CityMaster, 'name' | 'id'>,
   user: User,
 ) {
   const prisma = new PrismaClient();
   await prisma.$connect();
-  const exists = await prisma.country.findFirst({
+  const exists = await prisma.city.findFirst({
     where: {
       pStateId: 1,
       userId: user.id,
-      countryGEOJSONId: country.id,
+      cityMasterId: city.id,
     },
   });
   await prisma.$disconnect();
   return exists ? true : false;
 }
 
-export async function deleteCountryForUser(
-  country: Pick<Country, 'name'>,
+export async function deleteCityForUser(
+  city: Pick<CityMaster, 'name' | 'id'>,
   user: User,
 ) {
   const prisma = new PrismaClient();
   await prisma.$connect();
-  const data = await prisma.country.delete({
+  const data = await prisma.city.delete({
     where: {
       name_userId: {
         userId: user.id,
-        name: country.name,
+        name: city.name,
       },
     },
   });
@@ -79,19 +78,19 @@ export async function deleteCountryForUser(
   return data;
 }
 
-export async function isCountryValid(str: string) {
+export async function isCityValid(str: string) {
   const prisma = new PrismaClient();
   await prisma.$connect();
-  const country = await prisma.country.findFirst({ where: { name: str } });
+  const country = await prisma.city.findFirst({ where: { name: str } });
   prisma.$disconnect();
   return country ? true : false;
 }
 
-export async function findCountries(str: string, limit = 10) {
+export async function findCities(str: string, limit = 10) {
   prisma.$connect();
-  const countries = await prisma.countryGEOJSON.findMany({
+  const countries = await prisma.cityMaster.findMany({
     where: { name: { contains: str } },
-    select: { name: true, id: true, iso_a3: true },
+    select: { name: true, id: true, countryGEOJSONId: true },
     take: limit,
     orderBy: [{ name: 'asc' }],
   });

@@ -19,6 +19,7 @@ model PersistentState {
   Place          Place[]
   Memory         Memory[]
   CountryGEOJSON CountryGEOJSON[]
+  CityMaster     CityMaster[]
 }
 
 model User {
@@ -38,10 +39,53 @@ model User {
 
   createdAt DateTime  @default(now())
   updatedAt DateTime? @updatedAt
-  deletedAt DateTime?
 
   @@unique([email])
   @@index([email])
+}
+
+model CountryGEOJSON {
+  id        Int    @id @default(autoincrement())
+  name      String
+  geoJson   Json
+  iso_a3    String
+  iso_a2    String
+  region    String
+  subRegion String
+
+  pState   PersistentState @relation(fields: [pStateId], references: [id])
+  pStateId Int             @default(1)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  Country    Country[]
+  CityMaster CityMaster[]
+
+  @@unique([name])
+  @@index([iso_a2])
+  @@index([iso_a3])
+}
+
+model CityMaster {
+  id   Int    @id @default(autoincrement())
+  name String
+  lat  Float
+  lon  Float
+
+  pState   PersistentState @relation(fields: [pStateId], references: [id])
+  pStateId Int             @default(1)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  countryGEOJSON   CountryGEOJSON @relation(fields: [countryGEOJSONId], references: [id])
+  countryGEOJSONId Int
+  City             City[]
+
+  @@unique([name, countryGEOJSONId])
 }
 
 model Country {
@@ -53,7 +97,6 @@ model Country {
   iso_a3           String
   countryGEOJSON   CountryGEOJSON @relation(fields: [countryGEOJSONId], references: [id])
   countryGEOJSONId Int
-  City             City[]
   Place            Place[]
   Memory           Memory[]
 
@@ -68,34 +111,16 @@ model Country {
   @@index([name, userId])
 }
 
-model CountryGEOJSON {
-  id      Int    @id @default(autoincrement())
-  name    String
-  geoJson Json
-  iso_a3  String
-
-  pState   PersistentState @relation(fields: [pStateId], references: [id])
-  pStateId Int             @default(1)
-
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
-
-  Country Country[]
-
-  @@unique([name])
-}
-
 model City {
   id Int @id @default(autoincrement())
 
-  name      String
-  country   Country  @relation(fields: [countryId], references: [id])
-  countryId Int      @unique
-  user      User     @relation(fields: [userId], references: [id])
-  userId    Int
-  Place     Place[]
-  Memory    Memory[]
+  name         String
+  user         User       @relation(fields: [userId], references: [id])
+  userId       Int
+  Place        Place[]
+  Memory       Memory[]
+  cityMaster   CityMaster @relation(fields: [cityMasterId], references: [id])
+  cityMasterId Int
 
   pState   PersistentState @relation(fields: [pStateId], references: [id])
   pStateId Int             @default(1)
@@ -104,12 +129,8 @@ model City {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  lat Float
-  lon Float
-
   @@unique([name, userId])
   @@index([userId])
-  @@index([userId, countryId])
 }
 
 model Place {

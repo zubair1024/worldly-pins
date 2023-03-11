@@ -1,12 +1,13 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import { IResponse } from '@/lib/types';
+import { findCities } from '@/services/city';
 import { findCountries } from '@/services/country';
-import { CountryGEOJSON } from '@prisma/client';
+import { CityMaster, CountryGEOJSON } from '@prisma/client';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getSession } from 'next-auth/react';
 
 interface IFindResponse extends IResponse {
-  data?: Partial<CountryGEOJSON>[];
+  data?: Partial<CountryGEOJSON>[] | CityMaster[];
 }
 
 export default async function handler(
@@ -24,6 +25,10 @@ export default async function handler(
     if (type === 'country') {
       const countries = await findCountries(q as string);
       return res.status(200).json({ success: true, data: countries });
+    }
+    if (type === 'city') {
+      const cities = await findCities(q as string);
+      return res.status(200).json({ success: true, data: cities });
     }
   }
 

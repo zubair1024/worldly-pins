@@ -2,9 +2,10 @@
 import { IResponse } from '@/lib/types';
 import { handleError } from '@/lib/utils';
 import {
-  addCountry,
-  deleteCountry,
-  getCountries,
+  addCountryForUser,
+  checkIfCountryExistsForUser,
+  deleteCountryForUser,
+  getCountriesForUser,
   isCountryValid,
 } from '@/services/country';
 import { Country, CountryGEOJSON, User } from '@prisma/client';
@@ -37,7 +38,7 @@ export default async function handler(
 
   try {
     if (req.method == 'GET') {
-      const data = await getCountries(userData, { geojson: false });
+      const data = await getCountriesForUser(userData, { geojson: false });
       return res.status(200).json({
         success: true,
         message: 'Country was created successfully',
@@ -54,7 +55,18 @@ export default async function handler(
           errMessage: 'Country not found',
         });
 
-      const data = await addCountry(
+      const exists = await checkIfCountryExistsForUser(
+        req.body as Pick<CountryGEOJSON, 'name' | 'id' | 'iso_a3'>,
+        userData,
+      );
+      if (exists)
+        return res.status(200).json({
+          error: true,
+          errMessage: 'Country already exists',
+          success: false,
+        });
+
+      const data = await addCountryForUser(
         req.body as Pick<CountryGEOJSON, 'name' | 'id' | 'iso_a3'>,
         userData,
       );
@@ -74,7 +86,7 @@ export default async function handler(
           errMessage: 'Country not found',
         });
 
-      const data = await deleteCountry(
+      const data = await deleteCountryForUser(
         req.body as Pick<CountryGEOJSON, 'name'>,
         userData,
       );

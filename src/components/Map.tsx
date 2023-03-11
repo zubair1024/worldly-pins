@@ -1,5 +1,6 @@
-import { GeoJSON, MapContainer, TileLayer } from 'react-leaflet';
+import { GeoJSON, MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
 
+import { City, CityMaster, Country, CountryGEOJSON } from '@prisma/client';
 import { GeoJsonObject } from 'geojson';
 import 'leaflet-defaulticon-compatibility';
 import 'leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css';
@@ -7,10 +8,12 @@ import 'leaflet/dist/leaflet.css';
 
 const Map = ({
   apiKey,
-  countriesGeoJSON,
+  countries,
+  cities,
 }: {
   apiKey: string;
-  countriesGeoJSON: GeoJsonObject[] | undefined;
+  countries: (Country & { countryGEOJSON: CountryGEOJSON })[];
+  cities: (City & { cityMaster: CityMaster })[];
 }) => {
   return (
     <MapContainer
@@ -22,15 +25,22 @@ const Map = ({
       <TileLayer
         url={`https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/256/{z}/{x}/{y}@2x?access_token=${apiKey}`}
       />
-      {/* <Marker position={[51.505, -0.09]}>
-        <Popup>
-          A pretty CSS3 popup. <br /> Easily customizable.
-        </Popup>
-      </Marker> */}
-      {/* {countriesGeoJSON && <GeoJSON data={countriesGeoJSON} />} */}
-      {countriesGeoJSON ? (
-        countriesGeoJSON.map((i, idx) => {
-          return <GeoJSON key={idx} data={i}></GeoJSON>;
+      {cities?.length &&
+        cities.map((i) => {
+          return (
+            <Marker key={i.id} position={[i.cityMaster.lat, i.cityMaster.lon]}>
+              <Popup>{i.name}</Popup>
+            </Marker>
+          );
+        })}
+      {countries?.length ? (
+        countries.map((i, idx) => {
+          return (
+            <GeoJSON
+              key={idx}
+              data={i.countryGEOJSON.geoJson as unknown as GeoJsonObject}
+            ></GeoJSON>
+          );
         })
       ) : (
         <></>

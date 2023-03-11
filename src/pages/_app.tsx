@@ -3,6 +3,8 @@ import { SessionProvider, useSession } from 'next-auth/react';
 import type { AppProps } from 'next/app';
 import { useRouter } from 'next/router';
 import { NextComponentType, NextPageContext } from 'next/types';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 interface IAppProps extends AppProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -22,6 +24,7 @@ export default function App({ Component, pageProps }: IAppProps) {
             <Component {...pageProps} />
           )}
         </SessionProvider>
+        <ToastContainer />
       </div>
     </>
   );

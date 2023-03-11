@@ -30,10 +30,8 @@ export default NextAuth({
         await prisma.$connect();
         const user = await prisma.user.findUnique({ where: { email: email } });
         await prisma.$disconnect();
-        console.log(user);
         if (user?.password === password) {
           const userData = { ...user, password: undefined };
-          console.log(userData);
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           return userData as any;
         }
