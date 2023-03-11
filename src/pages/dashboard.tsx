@@ -16,7 +16,7 @@ const DashboardScreen = (props: { mapApiKey: string }) => {
       setIsLoading(false);
     };
     fetchData();
-  }, []);
+  }, [fetchUserCountries]);
 
   const DynamicMap = dynamic(
     () => import('../components/Map'), // replace '@components/map' with your component's location
