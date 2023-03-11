@@ -176,9 +176,7 @@ const CountryControls = () => {
               </div>
             ) : (
               filteredCountries
-                .filter((i) =>
-                  userCountries.find((j) => j.name == i.name) ? true : false,
-                )
+                .filter((i) => !userCountries.find((j) => j.name == i.name))
                 .map((i) => (
                   <li className="py-2" key={i.id}>
                     <p
