@@ -1,3 +1,4 @@
+import ScreenLoader from '@/components/ScreenLoader';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
@@ -13,7 +14,7 @@ const Home = () => {
     router.push('/dashboard');
   }
 
-  return <h1>Loading</h1>;
+  return <ScreenLoader />;
 };
 
 export default Home;

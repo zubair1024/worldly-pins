@@ -1,3 +1,4 @@
+import ScreenLoader from '@/components/ScreenLoader';
 import '@/styles/globals.css';
 import { SessionProvider, useSession } from 'next-auth/react';
 import type { AppProps } from 'next/app';
@@ -39,7 +40,7 @@ function Auth({ children }: { children: JSX.Element }): JSX.Element {
     },
   });
   if (status === 'loading') {
-    return <div>Loading...</div>;
+    return <ScreenLoader />;
   }
   return children;
 }

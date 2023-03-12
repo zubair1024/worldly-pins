@@ -1,6 +1,6 @@
 import Layout from '@/components/Layout';
-import Loading from '@/components/Loading';
 import ModalControl from '@/components/ModalControl';
+import ScreenLoader from '@/components/ScreenLoader';
 import useGlobalStore from '@/lib/store';
 import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
@@ -27,7 +27,7 @@ const DashboardScreen = (props: { mapApiKey: string }) => {
     <Layout>
       <div className="h-[100vh]">
         {isLoading ? (
-          <Loading />
+          <ScreenLoader />
         ) : (
           <div className="relative h-full">
             <div className="absolute bottom-20 right-10 z-[99999]">
