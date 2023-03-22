@@ -89,7 +89,14 @@ const useGlobalStore = create<StoreState>()((set, get) => ({
     }
   },
   removeUserCountry: async (country) => {
-    const res = await axios.delete('/api/country', { data: { ...country } });
+    const res = await axios.delete('/api/country', {
+      data: {
+        ...country,
+        countryGEOJSON: {
+          id: country?.countryGEOJSON.id ?? country.countryGEOJSONId,
+        },
+      },
+    });
     if (res.data?.data) {
       const country: Country & { countryGEOJSON: CountryGEOJSON } =
         res.data?.data?.[0];
