@@ -16,20 +16,17 @@ const CountryTable = ({
   ) => Promise<void>;
 }) => {
   return (
-    <div className="overflow-x-auto">
-      <table className="table w-full">
-        {/* head */}
+    <div className="tableFixHead">
+      <table className="table">
         <thead>
-          <tr>
-            <th></th>
-            <th>Countries</th>
-          </tr>
+          <th>Code</th>
+          <th>Country</th>
         </thead>
         <tbody>
           {userCountries.map((i) => {
             return (
               <tr key={i.id}>
-                <td></td>
+                <td>{i.iso_a3}</td>
                 <td className="flex space-x-4 text-sm">
                   {' '}
                   <button
@@ -59,24 +56,19 @@ const CityTable = ({
   handleRemoveUserCity: (city: City) => Promise<void>;
 }) => {
   return (
-    <div className="overflow-x-auto">
-      <table className="table w-full">
-        {/* head */}
+    <div className="tableFixHead">
+      <table className="table">
         <thead>
-          <tr>
-            <th></th>
-            <th>Cities</th>
-          </tr>
+          <th>City</th>
         </thead>
         <tbody>
           {userCities.map((i) => {
             return (
               <tr key={i.id}>
-                <td></td>
                 <td className="flex space-x-4 text-sm">
                   {' '}
                   <button
-                    className="rounded-full btn btn-xs btn-primary"
+                    className="rounded-full btn btn-xs"
                     onClick={() => {
                       handleRemoveUserCity(i);
                     }}
@@ -186,7 +178,9 @@ const CountryControls = () => {
                       }}
                     >
                       <GrAdd />
-                      <span>{i.name}</span>
+                      <span>
+                        {i.name} - {i.iso_a3}
+                      </span>
                     </p>
                   </li>
                 ))
@@ -216,7 +210,11 @@ const CityControls = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isFilterLoading, setIsFilterLoading] = useState(false);
   const [searchText, setSearchText] = useState<string>('');
-  const [filteredCities, setFilteredCities] = useState<CityMaster[]>([]);
+  const [filteredCities, setFilteredCities] = useState<
+    (CityMaster & {
+      countryGEOJSON: CountryGEOJSON;
+    })[]
+  >([]);
 
   useEffect(() => {
     setFilteredCities([]);
@@ -226,7 +224,11 @@ const CityControls = () => {
         .get(`/api/find?type=city&q=${searchText}`)
         .then((res) => {
           if (res.data?.data) {
-            setFilteredCities(res.data.data as CityMaster[]);
+            setFilteredCities(
+              res.data.data as (CityMaster & {
+                countryGEOJSON: CountryGEOJSON;
+              })[],
+            );
           }
         })
         .finally(() => setIsFilterLoading(false));
@@ -294,7 +296,10 @@ const CityControls = () => {
                       }}
                     >
                       <GrAdd />
-                      <span>{i.name}</span>
+                      <span>
+                        {i.name} - {i.countryGEOJSON.name} (
+                        {i.countryGEOJSON.iso_a3})
+                      </span>
                     </p>
                   </li>
                 ))

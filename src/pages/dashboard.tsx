@@ -6,17 +6,19 @@ import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
 
 const DashboardScreen = (props: { mapApiKey: string }) => {
-  const { fetchUserCountries, userCountries, userCities } = useGlobalStore();
+  const { fetchUserCountries, userCountries, userCities, fetchUserCities } =
+    useGlobalStore();
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
       await fetchUserCountries();
+      await fetchUserCities();
       setIsLoading(false);
     };
     fetchData();
-  }, [fetchUserCountries]);
+  }, [fetchUserCities, fetchUserCountries]);
 
   const DynamicMap = dynamic(
     () => import('../components/Map'), // replace '@components/map' with your component's location

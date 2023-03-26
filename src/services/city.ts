@@ -90,7 +90,7 @@ export async function findCities(str: string, limit = 10) {
   prisma.$connect();
   const countries = await prisma.cityMaster.findMany({
     where: { name: { contains: str, mode: 'insensitive' } },
-    select: { name: true, id: true, countryGEOJSONId: true },
+    include: { countryGEOJSON: true },
     take: limit,
     orderBy: [{ name: 'asc' }],
   });
